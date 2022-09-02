@@ -5,12 +5,11 @@
 [node name="main" type="Node2D"]
 
 [node name="ExampleReportForm" type="Panel" parent="."]
-margin_left = 124.0
-margin_top = 147.0
-margin_right = 485.0
-margin_bottom = 434.0
+margin_left = 13.0
+margin_top = 15.0
+margin_right = 450.0
+margin_bottom = 467.0
 script = ExtResource( 2 )
-report_token = "rt_sMSsWAEy1kSjQ1Xi7kBArmHo"
 
 [node name="MarginContainer" type="MarginContainer" parent="ExampleReportForm"]
 anchor_right = 1.0
@@ -21,48 +20,78 @@ margin_right = -4.0
 margin_bottom = -4.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ExampleReportForm/MarginContainer"]
-margin_right = 353.0
-margin_bottom = 280.0
+margin_right = 429.0
+margin_bottom = 444.0
+
+[node name="TokenLabel" type="Label" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
+margin_right = 429.0
+margin_bottom = 14.0
+text = "User Report Token:"
+
+[node name="TokenEdit" type="LineEdit" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
+margin_top = 18.0
+margin_right = 429.0
+margin_bottom = 42.0
+text = "rt_"
 
 [node name="MessageLabel" type="Label" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
-margin_right = 353.0
-margin_bottom = 14.0
+margin_top = 46.0
+margin_right = 429.0
+margin_bottom = 60.0
 text = "Message:"
 
 [node name="MessageEdit" type="TextEdit" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
-margin_top = 18.0
-margin_right = 353.0
-margin_bottom = 168.0
+margin_top = 64.0
+margin_right = 429.0
+margin_bottom = 214.0
 rect_min_size = Vector2( 0, 150 )
-text = "with file attachments v9"
+text = "user report message"
 
 [node name="EMailLabel" type="Label" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
-margin_top = 172.0
-margin_right = 353.0
-margin_bottom = 186.0
-text = "E-Mail (optional)"
+margin_top = 218.0
+margin_right = 429.0
+margin_bottom = 232.0
+text = "E-Mail (optional):"
 
 [node name="EMailEdit" type="LineEdit" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
-margin_top = 190.0
-margin_right = 353.0
-margin_bottom = 214.0
+margin_top = 236.0
+margin_right = 429.0
+margin_bottom = 260.0
 
 [node name="SeverityLabel" type="Label" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
-margin_top = 218.0
-margin_right = 353.0
-margin_bottom = 232.0
+margin_top = 264.0
+margin_right = 429.0
+margin_bottom = 278.0
 text = "Severity:"
 
 [node name="SeveritySelect" type="OptionButton" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
-margin_top = 236.0
-margin_right = 353.0
-margin_bottom = 256.0
+margin_top = 282.0
+margin_right = 429.0
+margin_bottom = 302.0
 text = "Severity"
 
+[node name="FilesLabel" type="Label" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
+margin_top = 306.0
+margin_right = 429.0
+margin_bottom = 320.0
+text = "Select Files:"
+
+[node name="FileTestTxtButton" type="CheckButton" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
+margin_top = 324.0
+margin_right = 429.0
+margin_bottom = 364.0
+text = "test.txt"
+
+[node name="FileIconPngButton" type="CheckButton" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
+margin_top = 368.0
+margin_right = 429.0
+margin_bottom = 408.0
+text = "icon.png"
+
 [node name="SendReportButton" type="Button" parent="ExampleReportForm/MarginContainer/VBoxContainer"]
-margin_top = 260.0
-margin_right = 353.0
-margin_bottom = 280.0
+margin_top = 412.0
+margin_right = 429.0
+margin_bottom = 432.0
 text = "Send User Report"
 
 [connection signal="pressed" from="ExampleReportForm/MarginContainer/VBoxContainer/SendReportButton" to="ExampleReportForm" method="_on_SendReportButton_pressed"]

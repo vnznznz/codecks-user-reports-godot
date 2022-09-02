@@ -9,7 +9,7 @@ const SEVERITY_LOW = "low"
 const SEVERITY_NONE = "none"
 const SEVERITES = [SEVERITY_CRITICAL, SEVERITY_HIGH, SEVERITY_LOW, SEVERITY_NONE]
 
-enum {NEW, ERROR, CREATING, UPLOADING, SUCCESS} # request status
+enum {NEW, ERROR, CREATING_CARD, UPLOADING_FILES, SUCCESS} # request status
 
 class FileInfo:
 	var file_name; var file_path; var content_type; var is_text;
@@ -27,14 +27,13 @@ var severity:String
 var email:String
 var status = NEW
 
-
-
 var _create_card_request = HTTPRequest.new()
 var _upload_file_request = HTTPRequest.new()
 
 var _current_file_idx = 0
 var _file_infos:Array = []
 var _upload_infos:Dictionary
+
 
 func _init(report_token_, message_, severity_=SEVERITY_NONE, email_=null):
 	self.report_token = report_token_
@@ -43,20 +42,24 @@ func _init(report_token_, message_, severity_=SEVERITY_NONE, email_=null):
 	self.email = email_
 	self.status = self.NEW
 
-func add_file(file_name, file_path, content_type="application/octet-stream", is_text=false):
+
+func add_text_file(file_name, file_path):
+	self.add_file(file_name, file_path, "plain/text", true)
+
+
+func add_binary_file(file_name, file_path):
+	self.add_file(file_name, file_path, "application/octet-stream", false)
+
+
+func add_file(file_name, file_path, content_type, is_text=false):
 	if self.status != self.NEW:
 		push_error("Unable to add files after sending request")
 		return
 	self._file_infos.append(FileInfo.new(file_name, file_path, content_type, is_text))
 
-func _create_boundary():
-	var boundary = ""
-	for _i in range(16):
-		boundary += ASCII_LETTERS[randi()%len(ASCII_LETTERS)]
-	return "Boundary%s\r\n" % boundary
 
 func _upload_next_file():
-	self.status = self.UPLOADING
+	self.status = self.UPLOADING_FILES
 
 	if self._current_file_idx >= len(self._file_infos):
 		self.status = self.SUCCESS
@@ -77,16 +80,19 @@ func _upload_next_file():
 
 
 func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_path:String, content_type="application/octet-stream", is_text=false):
-	fields["Content-Type"] = content_type
+	# create multipart boundary
+	var boundary = "Boundary"
+	for _i in range(16):
+		boundary += ASCII_LETTERS[randi()%len(ASCII_LETTERS)]
 
-	var boundary = self._create_boundary()
-	boundary = "7f3625c8f5e10e73c1d8176f9138069e"
 	var prefixed_boundary = ("--%s\r\n" % boundary).to_utf8()
 	var endl = "\r\n".to_utf8()
 
 	var body = PoolByteArray()
 	body.append_array(prefixed_boundary)
 
+	# add fields to request body
+	fields["Content-Type"] = content_type
 	for field_name in fields.keys():
 		var field_value = fields[field_name]
 		body.append_array(('Content-Disposition: form-data; name="%s"\r\n\r\n' % field_name).to_utf8())
@@ -94,13 +100,17 @@ func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_p
 		body.append_array(endl)
 		body.append_array(prefixed_boundary)
 
-
-
+	# add file to request body
 	body.append_array(('Content-Disposition: form-data; name="file"; filename="%s"\r\n' % file_name).to_utf8())
 	body.append_array(endl)
 
 	var file = File.new()
-	file.open(file_path, File.READ)
+	var err = file.open(file_path, File.READ)
+	if err != OK:
+		push_error("failed to open %s for reading" % file_path)
+		self.status = ERROR
+		return
+
 	if is_text:
 		body.append_array(file.get_as_text().to_utf8())
 	else:
@@ -113,8 +123,8 @@ func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_p
 	if _upload_file_request.get_parent() == null:
 		add_child(_upload_file_request)
 		_upload_file_request.connect("request_completed", self, "_upload_file_request_completed")
-	print(body.get_string_from_utf8())
 
+	# send request
 	var error = _upload_file_request.request_raw(
 		upload_url,
 		["Content-Type: multipart/form-data; boundary=%s" % boundary, "Content-Length: %s" % str(body.size())],
@@ -125,11 +135,9 @@ func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_p
 		push_error("An error occurred in the HTTP request.")
 
 
-func _upload_file_request_completed(_result, _response_code, _headers, body):
-	print("upload file request finished")
-	print(_response_code)
-	print(_headers)
-	print(body.get_string_from_utf8())
+func _upload_file_request_completed(result, response_code, _headers, body):
+	if result != _upload_file_request.RESULT_SUCCESS:
+		push_error("upload of file failed with status %s: %s" % [response_code, body])
 	self._upload_next_file()
 
 
@@ -137,7 +145,7 @@ func send():
 	if self.status != NEW:
 		push_error("Unable to send a CodecksUserReport more than once, please create a new one")
 		return
-	self.status = CREATING
+	self.status = CREATING_CARD
 
 	if self.get_parent() == null:
 		push_error("Unable to send CodecksUserReport when not added to a scene")
@@ -166,12 +174,10 @@ func send():
 		body["userEmail"] = self.email
 
 	var json_body = to_json(body)
-	print(json_body)
-
 	var error = _create_card_request.request("https://api.codecks.io/user-report/v1/create-report?token=%s" % self.report_token, ["Content-Type: application/json"], true, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
 		self.status = ERROR
-		push_error("An error occurred in the HTTP request.")
+		push_error("An error occurred in the HTTP request: %s" % json_body)
 
 
 func _create_card_request_completed(_result, _response_code, _headers, body):
@@ -196,8 +202,3 @@ func _create_card_request_completed(_result, _response_code, _headers, body):
 
 	self.status = self.ERROR
 	push_error("codecks api didn't return the right number of upload urls, skipping upload")
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
