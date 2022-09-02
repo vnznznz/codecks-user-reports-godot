@@ -10,6 +10,7 @@ onready var severity_select = $MarginContainer/VBoxContainer/SeveritySelect
 onready var testTxtButton = $MarginContainer/VBoxContainer/FileTestTxtButton
 onready var iconPngButton = $MarginContainer/VBoxContainer/FileIconPngButton
 
+var report:CodecksUserReport = null
 
 func _ready():
 	for severity in CodecksUserReport.SEVERITES:
@@ -22,14 +23,19 @@ func _on_SendReportButton_pressed():
 	var message = message_edit.text
 	var email = email_edit.text
 	var severity = CodecksUserReport.SEVERITES[severity_select.get_selected_id()]
-	
+
 	if len(report_token) < 10:
 		alert("Please enter a report token", "Error")
 		token_edit.grab_focus()
 		token_edit.select_all()
-		
-	var report = CodecksUserReport.new(report_token, message, severity, email)
+
+	# cleanup old reports
+	if report != null:
+		report.queue_free()
 	
+	report = CodecksUserReport.new(report_token, message, severity, email)
+	report.connect("card_created", self, "_on_card_created")
+
 	if testTxtButton.pressed:
 		report.add_text_file("test.txt", "res://test.txt")
 	if iconPngButton.pressed:
@@ -46,3 +52,6 @@ func alert(text: String, title: String='Message') -> void:
 	dialog.connect('modal_closed', dialog, 'queue_free')
 	add_child(dialog)
 	dialog.popup_centered()
+
+func _on_card_created(card_id):
+	print("codecks card %s created" % card_id)

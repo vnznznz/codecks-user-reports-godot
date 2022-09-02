@@ -27,6 +27,8 @@ var severity:String
 var email:String
 var status = NEW
 
+signal card_created(card_id)
+
 var _create_card_request = HTTPRequest.new()
 var _upload_file_request = HTTPRequest.new()
 
@@ -63,6 +65,7 @@ func _upload_next_file():
 
 	if self._current_file_idx >= len(self._file_infos):
 		self.status = self.SUCCESS
+		emit_signal("card_created", self.card_id)
 		return
 
 	var file_info = self._file_infos[self._current_file_idx]
@@ -194,6 +197,7 @@ func _create_card_request_completed(_result, _response_code, _headers, body):
 
 	if len(self._file_infos) == 0:
 		self.status = self.SUCCESS
+		emit_signal("card_created", self.card_id)
 		return
 
 	if len(self._file_infos) == len(self._upload_infos):
