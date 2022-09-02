@@ -36,3 +36,9 @@ func _on_card_created(card_id):
 ## Example
 
 For an example user report UI you can open this repo as a godot project and look at `main.tscn` as well as `ExampleReportForm.gd`
+
+
+## TODO
+- publish to godot asset library
+- unit testing
+- support upload of large files by streaming the request body
