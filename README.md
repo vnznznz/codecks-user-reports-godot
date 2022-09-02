@@ -32,3 +32,7 @@ func _on_card_created(card_id):
 	print("codecks card %s created" % card_id)
 
 ```
+
+## Example
+
+For an example user report UI you can open this repo as a godot project and look at `main.tscn` as well as `ExampleReportForm.gd`
