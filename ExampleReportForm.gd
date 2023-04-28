@@ -1,8 +1,5 @@
 extends Panel
 
-
-
-
 @onready var token_edit = $MarginContainer/VBoxContainer/TokenEdit
 @onready var message_edit = $MarginContainer/VBoxContainer/MessageEdit
 @onready var email_edit = $MarginContainer/VBoxContainer/EMailEdit

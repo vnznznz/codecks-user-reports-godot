@@ -1,7 +1,10 @@
-extends Node
-class_name CodecksUserReport
+@icon("res://addons/codecks_user_reports/cdx__icon.svg")
+class_name CodecksUserReport extends Node
 
-const ASCII_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+## Create Codecks User Reports
+
+
+const __ASCII_LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 const SEVERITY_CRITICAL = "critical"
 const SEVERITY_HIGH = "high"
@@ -20,12 +23,13 @@ class FileInfo:
 		self.content_type = content_type_
 		self.is_text = is_text_
 
-var card_id:String
-var report_token:String
-var message:String
-var severity:String
-var email:String
-var status = NEW
+class Card:
+	var card_id:String
+	var report_token:String
+	var message:String
+	var severity:String
+	var email:String
+	var status = NEW
 
 signal card_created(card_id)
 
@@ -86,7 +90,7 @@ func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_p
 	# create multipart boundary
 	var boundary = "Boundary"
 	for _i in range(16):
-		boundary += ASCII_LETTERS[randi()%len(ASCII_LETTERS)]
+		boundary += __ASCII_LETTERS[randi()%len(__ASCII_LETTERS)]
 
 	var prefixed_boundary = ("--%s\r\n" % boundary).to_utf8_buffer()
 	var endl = "\r\n".to_utf8_buffer()
