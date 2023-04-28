@@ -1,4 +1,4 @@
-@icon("res://addons/codecks_user_reports/cdx__icon.svg")
+@icon("res://addons/codecks_user_reports/icons/cdx__icon.svg")
 class_name CodecksUserReport extends Node
 
 ## Create Codecks User Reports
@@ -110,8 +110,8 @@ func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_p
 	# add file to request body
 	body.append_array(('Content-Disposition: form-data; name="file"; filename="%s"\r\n' % file_name).to_utf8_buffer())
 	body.append_array(endl)
-	
-	var file = FileAccess.open(file_path, FileAccess.READ)	
+
+	var file = FileAccess.open(file_path, FileAccess.READ)
 
 	if file == null:
 		push_error("failed to open %s for reading, error: " % [file_path, FileAccess.get_open_error()])
@@ -133,7 +133,7 @@ func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_p
 
 	# send request
 	var error = _upload_file_request.request_raw(
-		upload_url, 
+		upload_url,
 		["Content-Type: multipart/form-data; boundary=%s" % boundary, "Content-Length: %s" % str(body.size())],
 		HTTPClient.METHOD_POST, body
 	)
@@ -181,11 +181,11 @@ func send():
 	if self.email != null and len(self.email) > 0 and self.email.count("@") >= 1:
 		body["userEmail"] = self.email
 
-	var json_body = JSON.stringify(body)	
+	var json_body = JSON.stringify(body)
 	var error = _create_card_request.request(
 		"https://api.codecks.io/user-report/v1/create-report?token=%s" % self.report_token,
-		["Content-Type: application/json"], 
-		HTTPClient.METHOD_POST, 
+		["Content-Type: application/json"],
+		HTTPClient.METHOD_POST,
 		json_body
 		)
 	if error != OK:
