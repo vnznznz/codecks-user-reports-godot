@@ -48,7 +48,7 @@ func _on_SendReportButton_pressed():
 func alert(text: String, title: String='Message') -> void:
 	var dialog = AcceptDialog.new()
 	dialog.dialog_text = text
-	dialog.window_title = title
+	dialog.title = title
 	dialog.connect('modal_closed', Callable(dialog, 'queue_free'))
 	add_child(dialog)
 	dialog.popup_centered()
