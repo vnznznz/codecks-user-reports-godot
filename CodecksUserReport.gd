@@ -88,50 +88,51 @@ func _upload_file(upload_url:String, fields:Dictionary, file_name:String, file_p
 	for _i in range(16):
 		boundary += ASCII_LETTERS[randi()%len(ASCII_LETTERS)]
 
-	var prefixed_boundary = ("--%s\r\n" % boundary).to_utf8()
-	var endl = "\r\n".to_utf8()
+	var prefixed_boundary = ("--%s\r\n" % boundary).to_utf8_buffer()
+	var endl = "\r\n".to_utf8_buffer()
 
-	var body = PoolByteArray()
+	var body = PackedByteArray()
 	body.append_array(prefixed_boundary)
 
 	# add fields to request body
 	fields["Content-Type"] = content_type
 	for field_name in fields.keys():
 		var field_value = fields[field_name]
-		body.append_array(('Content-Disposition: form-data; name="%s"\r\n\r\n' % field_name).to_utf8())
-		body.append_array(str(field_value).to_utf8())
+		body.append_array(('Content-Disposition: form-data; name="%s"\r\n\r\n' % field_name).to_utf8_buffer())
+		body.append_array(str(field_value).to_utf8_buffer())
 		body.append_array(endl)
 		body.append_array(prefixed_boundary)
 
 	# add file to request body
-	body.append_array(('Content-Disposition: form-data; name="file"; filename="%s"\r\n' % file_name).to_utf8())
+	body.append_array(('Content-Disposition: form-data; name="file"; filename="%s"\r\n' % file_name).to_utf8_buffer())
 	body.append_array(endl)
+	
+	var file = FileAccess.open(file_path, FileAccess.READ)	
 
-	var file = File.new()
-	var err = file.open(file_path, File.READ)
-	if err != OK:
-		push_error("failed to open %s for reading" % file_path)
+	if file == null:
+		push_error("failed to open %s for reading, error: " % [file_path, FileAccess.get_open_error()])
 		self.status = ERROR
 		return
 
 	if is_text:
-		body.append_array(file.get_as_text().to_utf8())
+		body.append_array(file.get_as_text().to_utf8_buffer())
 	else:
-		body.append_array(file.get_buffer(file.get_len()))
+		body.append_array(file.get_buffer(file.get_length()))
 
 	file.close()
 	body.append_array(endl)
-	body.append_array(("--%s--" % boundary ).to_utf8())
+	body.append_array(("--%s--" % boundary ).to_utf8_buffer())
 
 	if _upload_file_request.get_parent() == null:
 		add_child(_upload_file_request)
-		_upload_file_request.connect("request_completed", self, "_upload_file_request_completed")
+		_upload_file_request.connect("request_completed", Callable(self, "_upload_file_request_completed"))
 
 	# send request
 	var error = _upload_file_request.request_raw(
-		upload_url,
+		upload_url, 
 		["Content-Type: multipart/form-data; boundary=%s" % boundary, "Content-Length: %s" % str(body.size())],
-		true, HTTPClient.METHOD_POST, body)
+		HTTPClient.METHOD_POST, body
+	)
 
 	if error != OK:
 		self.status = ERROR
@@ -157,7 +158,7 @@ func send():
 
 
 	add_child(_create_card_request)
-	_create_card_request.connect("request_completed", self, "_create_card_request_completed")
+	_create_card_request.connect("request_completed", Callable(self, "_create_card_request_completed"))
 
 	var _severity = self.severity
 	var _file_names = []
@@ -176,8 +177,13 @@ func send():
 	if self.email != null and len(self.email) > 0 and self.email.count("@") >= 1:
 		body["userEmail"] = self.email
 
-	var json_body = to_json(body)
-	var error = _create_card_request.request("https://api.codecks.io/user-report/v1/create-report?token=%s" % self.report_token, ["Content-Type: application/json"], true, HTTPClient.METHOD_POST, json_body)
+	var json_body = JSON.stringify(body)	
+	var error = _create_card_request.request(
+		"https://api.codecks.io/user-report/v1/create-report?token=%s" % self.report_token,
+		["Content-Type: application/json"], 
+		HTTPClient.METHOD_POST, 
+		json_body
+		)
 	if error != OK:
 		self.status = ERROR
 		push_error("An error occurred in the HTTP request: %s" % json_body)
@@ -185,7 +191,9 @@ func send():
 
 func _create_card_request_completed(_result, _response_code, _headers, body):
 	var response_text = body.get_string_from_utf8()
-	var parsed_response:Dictionary = parse_json(response_text)
+	var test_json_conv = JSON.new()
+	test_json_conv.parse(response_text)
+	var parsed_response:Dictionary = test_json_conv.get_data()
 	if typeof(parsed_response) != TYPE_DICTIONARY or not parsed_response.get("ok", false):
 		push_error("unexpected response from api.codecks.io: %s" % response_text)
 		self.status = self.ERROR

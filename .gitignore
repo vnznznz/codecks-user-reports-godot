@@ -13,3 +13,5 @@ data_*/
 
 ## IDE
 .vscode/
+
+.godot/

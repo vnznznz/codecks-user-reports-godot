@@ -3,12 +3,12 @@ extends Panel
 
 
 
-onready var token_edit = $MarginContainer/VBoxContainer/TokenEdit
-onready var message_edit = $MarginContainer/VBoxContainer/MessageEdit
-onready var email_edit = $MarginContainer/VBoxContainer/EMailEdit
-onready var severity_select = $MarginContainer/VBoxContainer/SeveritySelect
-onready var testTxtButton = $MarginContainer/VBoxContainer/FileTestTxtButton
-onready var iconPngButton = $MarginContainer/VBoxContainer/FileIconPngButton
+@onready var token_edit = $MarginContainer/VBoxContainer/TokenEdit
+@onready var message_edit = $MarginContainer/VBoxContainer/MessageEdit
+@onready var email_edit = $MarginContainer/VBoxContainer/EMailEdit
+@onready var severity_select = $MarginContainer/VBoxContainer/SeveritySelect
+@onready var testTxtButton = $MarginContainer/VBoxContainer/FileTestTxtButton
+@onready var iconPngButton = $MarginContainer/VBoxContainer/FileIconPngButton
 
 var report:CodecksUserReport = null
 
@@ -34,7 +34,7 @@ func _on_SendReportButton_pressed():
 		report.queue_free()
 	
 	report = CodecksUserReport.new(report_token, message, severity, email)
-	report.connect("card_created", self, "_on_card_created")
+	report.connect("card_created", Callable(self, "_on_card_created"))
 
 	if testTxtButton.pressed:
 		report.add_text_file("test.txt", "res://test.txt")
@@ -49,7 +49,7 @@ func alert(text: String, title: String='Message') -> void:
 	var dialog = AcceptDialog.new()
 	dialog.dialog_text = text
 	dialog.window_title = title
-	dialog.connect('modal_closed', dialog, 'queue_free')
+	dialog.connect('modal_closed', Callable(dialog, 'queue_free'))
 	add_child(dialog)
 	dialog.popup_centered()
 
