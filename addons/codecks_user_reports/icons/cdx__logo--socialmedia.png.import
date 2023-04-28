@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://faturyah2bop"
-path="res://.godot/imported/cdx__icon.svg-c600ed90e2661f5131a3dea3c25ca8f7.ctex"
+uid="uid://b4vsw0d3vceto"
+path="res://.godot/imported/cdx__logo--socialmedia.png-908da2aa7d8b5995a6fca6978c2580cc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/codecks_user_reports/icons/cdx__icon.svg"
-dest_files=["res://.godot/imported/cdx__icon.svg-c600ed90e2661f5131a3dea3c25ca8f7.ctex"]
+source_file="res://addons/codecks_user_reports/icons/cdx__logo--socialmedia.png"
+dest_files=["res://.godot/imported/cdx__logo--socialmedia.png-908da2aa7d8b5995a6fca6978c2580cc.ctex"]
 
 [params]
 
@@ -32,6 +32,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=0.02
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false
