@@ -43,9 +43,10 @@ var _upload_infos:Dictionary
 
 var report_token:String = ""
 var message:String = ""
-var severity:String = ""
+var severity:String = SEVERITY_NONE
 var email:String = ""
 var status:int = 0
+var card_id:String = ""
 
 func _init(report_token_, message_, severity_=SEVERITY_NONE, email_=null):
 	self.report_token = report_token_
