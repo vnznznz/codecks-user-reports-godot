@@ -202,7 +202,12 @@ func send():
 func _create_card_request_completed(_result, _response_code, _headers, body):
 	var response_text = body.get_string_from_utf8()
 	var test_json_conv = JSON.new()
-	test_json_conv.parse(response_text)
+	
+	if test_json_conv.parse(response_text) != OK:
+		push_error("unexpected response from api.codecks.io: %s" % response_text)
+		self.status = self.ERROR
+		return
+
 	var parsed_response:Dictionary = test_json_conv.get_data()
 	if typeof(parsed_response) != TYPE_DICTIONARY or not parsed_response.get("ok", false):
 		push_error("unexpected response from api.codecks.io: %s" % response_text)
