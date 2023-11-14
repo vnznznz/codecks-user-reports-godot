@@ -41,6 +41,12 @@ var _file_infos:Array = []
 var _upload_infos:Dictionary
 
 
+var report_token:String = ""
+var message:String = ""
+var severity:String = ""
+var email:String = ""
+var status:int = 0
+
 func _init(report_token_, message_, severity_=SEVERITY_NONE, email_=null):
 	self.report_token = report_token_
 	self.message = message_
